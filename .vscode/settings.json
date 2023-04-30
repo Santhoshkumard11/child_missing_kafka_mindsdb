@@ -3,5 +3,6 @@
     "editor.defaultFormatter": "ms-python.black-formatter"
   },
   "python.formatting.provider": "none",
-  "cSpell.words": ["MINDSDB"]
+  "cSpell.words": ["MINDSDB"],
+  "python.analysis.typeCheckingMode": "basic"
 }

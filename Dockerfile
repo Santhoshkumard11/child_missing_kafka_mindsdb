@@ -1,8 +1,10 @@
-FROM python3.8.16-slim
+FROM python:3.8.16-slim
 
 RUN mkdir -p /opt/streamlit/child_missing_model
 
 COPY . /opt/streamlit/child_missing_model
+
+WORKDIR /opt/streamlit/child_missing_model
 
 RUN pip install -r requirements.txt
 

@@ -5,6 +5,7 @@ __pycache__/
 
 snippets/
 data_generation/
+client.properties
 
 # C extensions
 *.so

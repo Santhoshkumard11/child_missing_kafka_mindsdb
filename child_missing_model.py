@@ -47,7 +47,7 @@ with col1:
     )
 
     st.button(
-        "Send Data",
+        "Predict!",
         on_click=handle_send_data,
         args=((input_latitude, input_longitude, input_vibration, input_acceleration),),
     )
@@ -58,6 +58,6 @@ with col2:
     st.text(f"No of Predictions made - {st.session_state.NO_OF_PREDICTION}")
 
     if st.session_state.FLAG_PREDICTION:
-        st.text("Prediction output")
+        st.text("Prediction output:")
         st.text(st.session_state.PREDICTION)
         st.json(st.session_state.JSON_PREDICTION)

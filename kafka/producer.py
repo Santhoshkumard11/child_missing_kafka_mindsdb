@@ -65,26 +65,34 @@ class CustomProducer:
 
     def gather_details(self, index):
         if index % 2 == 0:
-            return (
-                self.get_latitude(),
-                self.get_longitude(),
-                self.get_vibration_level(1),
-                self.get_acceleration(1),
+            return ",".join(
+                map(
+                    str,
+                    (
+                        self.get_latitude(),
+                        self.get_longitude(),
+                        self.get_vibration_level(1),
+                        self.get_acceleration(1),
+                    ),
+                )
             )
         else:
-            return (
-                self.get_latitude(),
-                self.get_longitude(),
-                self.get_vibration_level(),
-                self.get_acceleration(),
+            return ",".join(
+                map(
+                    str,
+                    (
+                        self.get_latitude(),
+                        self.get_longitude(),
+                        self.get_vibration_level(),
+                        self.get_acceleration(),
+                    ),
+                )
             )
 
     def set_kafka_configs(self):
         self.producer = Producer(read_cloud_config("./client.properties"))
 
     def send_data(self, key, value):
-        if type(value) != str:
-            value = json.dumps(value)
         self.producer.produce(self.current_topic, key=key, value=value)
 
     def start_producer(self, no_data=1):
@@ -99,7 +107,7 @@ class CustomProducer:
         for index in range(0, no_data):
             value = self.gather_details(index)
             self.send_data("", value)
-            logging.info("sleeping..")
+            logging.info("Data sent..")
             sleep(0.5)
 
         self.producer.flush()

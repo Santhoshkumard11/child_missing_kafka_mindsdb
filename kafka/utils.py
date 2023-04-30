@@ -1,16 +1,11 @@
-from sqlalchemy import create_engine, text
-import os
+from sqlalchemy import text
 import logging
 
+
 from config.logger import set_logger
+from constants import QUERY_INSERT_TEMPLATE, QUERY_PREDICTION
 
 set_logger()
-
-user = os.environ.get("MYSQL_USERNAME")
-password = os.environ.get("MYSQL_PASSWORD")
-host = os.environ.get("MYSQL_HOST")
-port = 3306
-database = "child_missing"
 
 
 def read_cloud_config(config_file):
@@ -24,24 +19,33 @@ def read_cloud_config(config_file):
     return conf
 
 
-def create_connection():
-    logging.info("Attempting to create a connection")
-    return create_engine(
-        url=f"mysql+pymysql://{user}:{password}@{host}:{port}/{database}"
-    ).connect()
-
-
 def generate_query_str(data):
-    
-    return ""
+    return QUERY_INSERT_TEMPLATE.format(data)
 
 
-def send_data_to_mysql(data):
+def is_valid_data(data):
+    return data.__len__() != 4
+
+
+def send_data_to_mysql(data, conn):
     try:
-        conn = create_connection()
+        # skip if the data doesn't match
+        if is_valid_data(data):
+            str_query = generate_query_str(data)
 
-        str_query = generate_query_str(data)
-
-        conn.execute(text(str_query))
+            conn.execute(text(str_query))
+            conn.commit()
+            logging.info("committed value")
+        else:
+            logging.info("Skipping this value")
     except Exception as e:
         logging.error(f"Error in send_data_to_mysql - \n{e}")
+
+
+def predict_missing(data, conn):
+    data = list(map(float, data.split(",")))
+    str_query = QUERY_PREDICTION.format(*data)
+
+    missing, json_missing_explain = conn.execute(text(str_query)).fetchone()
+    logging.info(f"Predicted class - {missing}")
+    return missing, json_missing_explain
