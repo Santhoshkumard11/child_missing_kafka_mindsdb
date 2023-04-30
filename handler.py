@@ -25,9 +25,7 @@ coloredlogs.install(level=logging.INFO, handlers=[log_handler], fmt=str_fmt)
 def create_connection():
     logging.info("Attempting to create a connection")
     return create_engine(
-        url="mysql+pymysql://{0}:{1}@{2}:{3}/{4}".format(
-            user, password, host, port, database
-        )
+        url=f"mysql+pymysql://{user}:{password}@{host}:{port}/{database}"
     ).connect()
 
 
@@ -37,13 +35,14 @@ def generate_query(data):
 
 def handle_send_data(data):
     try:
-        conn = create_connection()
-        logging.info("Successfully connected to mindsdb")
-        str_query = generate_query(data)
+        with st.spinner("Querying mindsdb to make a prediction..."):
+            conn = create_connection()
+            logging.info("Successfully connected to mindsdb")
+            str_query = generate_query(data)
 
-        logging.info("Attempting to execute the query")
-        missing, json_missing_explain = conn.execute(text(str_query)).fetchone()
-        logging.info("Successfully executed the query")
+            logging.info("Attempting to execute the query")
+            missing, json_missing_explain = conn.execute(text(str_query)).fetchone()
+            logging.info("Successfully executed the query")
 
         st.session_state.NO_OF_PREDICTION += 1
 
