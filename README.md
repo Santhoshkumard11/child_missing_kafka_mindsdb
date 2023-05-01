@@ -34,14 +34,28 @@ Youtube Demo: [Link](https://youtu.be/pvhijlyhdQs)
 
 - MySQL - Store IoT data
 
-### How to run
+## Run locally
 
 ### Requires Python3.8+
 
 - If you're on Windows, `pip install PyWin`
 - Setup `client.properties` file inside kafka before running this commands - Used Confluent Kafka
 
+### Env Variables
+
+- `MINDSDB_USERNAME`
+- `MINDSDB_PASSWORD`
+- `MYSQL_USERNAME`
+- `MYSQL_HOST`
+- `TWILIO_ACCOUNT_SID`
+- `TWILIO_AUTH_TOKEN`
+- `TWILIO_TWIML_BIN_URL`
+
 ```bash
+python -m venv mindsdb_venv
+
+source mindsdb_venv/bin/activate
+
 python -m pip install -r requirements.txt
 
 #go inside kafka dir and run this
