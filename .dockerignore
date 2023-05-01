@@ -1,7 +1,7 @@
-# exclude all
+# exclude all files and folder
 *
 
-# include few
+# include only necessary files
 !child_missing_model.py
 !constants.py
 !handler.py

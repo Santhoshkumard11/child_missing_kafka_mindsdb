@@ -13,6 +13,11 @@ set_logger()
 
 
 def get_args():
+    """Parse command-line args
+
+    Returns:
+        Namespace : namespace object with command-line arguments
+    """
     parser = argparse.ArgumentParser(description="Produces random IoT sensor data")
     parser.add_argument(
         "-n",
@@ -28,6 +33,8 @@ def get_args():
 
 
 class CustomProducer:
+    """Produce some sample IoT data and push it to iot_logs Kafka topic"""
+
     def __init__(self, topic) -> None:
         self.current_topic = topic
 
@@ -46,7 +53,7 @@ class CustomProducer:
         )
 
     @staticmethod
-    def get_vibration_level(type=0):
+    def get_vibration_level(type=0) -> float:
         config_vibration = CONFIG_DATA_GEN["vibration"]
         if type == 0:
             start, end = config_vibration["negative"].values()
@@ -55,7 +62,7 @@ class CustomProducer:
         return round(random.uniform(start, end), 2)
 
     @staticmethod
-    def get_acceleration(type=0):
+    def get_acceleration(type=0) -> float:
         config_acceleration = CONFIG_DATA_GEN["acceleration"]
         if type == 0:
             start, end = config_acceleration["negative"].values()
@@ -63,7 +70,15 @@ class CustomProducer:
             start, end = config_acceleration["positive"].values()
         return round(random.uniform(start, end), 2)
 
-    def gather_details(self, index):
+    def gather_details(self, index) -> str:
+        """Gather all the sensors data and return it as a comma separated value
+
+        Args:
+            index (int): index to process - random
+
+        Returns:
+            str: comma separated IoT data
+        """
         if index % 2 == 0:
             return ",".join(
                 map(
@@ -89,27 +104,37 @@ class CustomProducer:
                 )
             )
 
-    def set_kafka_configs(self):
+    def set_kafka_configs(self) -> None:
+        """Setting up the Kafka producer"""
         self.producer = Producer(read_cloud_config("./client.properties"))
 
-    def send_data(self, key, value):
+    def send_data(self, key, value) -> None:
+        """Send data to a Kafka topic with the producer object
+
+        Args:
+            key (str): key to pass to the topic - used in topic partition
+            value (str): value to store in the topic
+        """
         self.producer.produce(self.current_topic, key=key, value=value)
 
-    def start_producer(self, no_data=1):
+    def start_producer(self, no_data=1) -> None:
         logging.info("Attempting to set kafka configs")
         self.set_kafka_configs()
         logging.info("Successfully set Kafka configs!")
 
+        # convert data to int if not already
         if type(no_data) != int:
             no_data = int(no_data)
 
         logging.info(f"Starting the producer on topic - {self.current_topic}")
+        # generate data
         for index in range(0, no_data):
             value = self.gather_details(index)
             self.send_data("", value)
             logging.info("Data sent..")
             sleep(0.5)
 
+        # make sure the Kafka topic has acknowledged all the data sent
         self.producer.flush()
 
         logging.info("Done producing data!")

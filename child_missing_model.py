@@ -3,15 +3,18 @@ import logging
 
 from handler import handle_send_data
 
+# Setting some basic page configs
 st.set_page_config(
     page_title="Sandy Inspires - Child Missing",
     page_icon="📈",
     layout="wide",
 )
 
+# Setting the page title and subheader
 st.title("Dashboard - Child Missing")
+st.subheader("Choose a value and click Predict to hit Mindsdb model. Predictions are show in the right-side!")
 
-# initializing values
+# initializing values - runs only once per session
 if "FLAG_PREDICTION" not in st.session_state:
     logging.info("Initializing variables")
     st.session_state.NO_OF_PREDICTION = 0
@@ -57,6 +60,7 @@ with col2:
     # shows how many prediction is made in this session
     st.text(f"No of Predictions made - {st.session_state.NO_OF_PREDICTION}")
 
+    # show if the prediction is made successfully
     if st.session_state.FLAG_PREDICTION:
         st.text("Prediction output:")
         st.text(st.session_state.PREDICTION)

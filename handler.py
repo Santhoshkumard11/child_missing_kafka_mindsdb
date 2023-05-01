@@ -7,12 +7,14 @@ import coloredlogs
 from constants import QUERY_PREDICTION
 
 
+# Setting MindsDB MySQL server configs
 user = os.environ.get("MINDSDB_USERNAME")
 password = os.environ.get("MINDSDB_PASSWORD")
 host = "cloud.mindsdb.com"
 port = 3306
 database = "mindsdb"
 
+# Setting logging configs
 log_handler = logging.StreamHandler(sys.stdout)
 str_fmt = "%(asctime)s | %(module)s | line %(lineno)d | %(levelname)s | %(message)s"
 formatter = logging.Formatter(str_fmt)
@@ -21,6 +23,7 @@ log_handler.setFormatter(formatter)
 coloredlogs.install(level=logging.INFO, handlers=[log_handler], fmt=str_fmt)
 
 
+# cache the sqlalchemy connection object
 @st.cache_resource
 def create_connection():
     logging.info("Attempting to create a connection")
@@ -30,11 +33,25 @@ def create_connection():
 
 
 def generate_query(data):
+    """Format the prediction query with the data passed
+
+    Args:
+        data (list): feature values for the ML model
+
+    Returns:
+        str: MySQL query string
+    """
     return QUERY_PREDICTION.format(*data)
 
 
 def handle_send_data(data):
+    """Make prediction from MindsDB database with the data passed
+
+    Args:
+        data (list): feature values for the ML model
+    """
     try:
+        # start spinner once we start operation from database
         with st.spinner("Querying mindsdb to make a prediction..."):
             conn = create_connection()
             logging.info("Successfully connected to mindsdb")
@@ -44,6 +61,7 @@ def handle_send_data(data):
             missing, json_missing_explain = conn.execute(text(str_query)).fetchone()
             logging.info("Successfully executed the query")
 
+        # increment the prediction counter
         st.session_state.NO_OF_PREDICTION += 1
 
         st.session_state.FLAG_PREDICTION = True
